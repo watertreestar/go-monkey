@@ -47,7 +47,11 @@ func (p *Parser) parseProgram() *ast.Program {
 	}
 	// stop till eof
 	for p.curToken.Type != token.EOF {
-
+		stmt := p.parseStatement()
+		if stmt != nil {
+			program.Statements = append(program.Statements, stmt)
+		}
+		p.nextToken()
 	}
 	return program
 }
@@ -65,6 +69,7 @@ func (p *Parser) parseStatement() ast.Statement {
 
 func (p *Parser) parseLetStatement() *ast.LetStatement {
 	stmt := &ast.LetStatement{Token: p.curToken}
+	// token.IDENT represent a general identifier
 	if !p.expectPeek(token.IDENT) {
 		return nil
 	}
@@ -74,7 +79,9 @@ func (p *Parser) parseLetStatement() *ast.LetStatement {
 	if !p.expectPeek(token.ASSIGN) {
 		return nil
 	}
+	// todo skip the expression
 
+	// encounter a semicolon
 	for !p.curTokenIs(token.SEMICOLON) {
 		p.nextToken()
 	}
@@ -107,17 +114,17 @@ func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
 }
 
 func (p *Parser) parseExpression(precedence int) ast.Expression {
-
+	return nil
 }
 
 // Utility functions
 
 func (p *Parser) curTokenIs(t token.Type) bool {
-
+	return p.curToken.Type == t
 }
 
 func (p *Parser) peekTokenIs(t token.Type) bool {
-
+	return p.peekToken.Type == t
 }
 
 func (p *Parser) expectPeek(t token.Type) bool {
@@ -132,4 +139,9 @@ func (p *Parser) peekError(t token.Type) {
 	msg := fmt.Sprintf("expected next token to be %s, got %s instead",
 		t, p.peekToken.Type)
 	p.errors = append(p.errors, msg)
+}
+
+// Errors return the error array while parsing
+func (p *Parser) Errors() []string {
+	return p.errors
 }

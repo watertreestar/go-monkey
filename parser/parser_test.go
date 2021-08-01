@@ -10,7 +10,7 @@ func TestLetStatement(t *testing.T) {
 	input := `
 let x = 5;
 let u = 10;
-let foobar = 76983
+let foobar = 76983;
 `
 	l := lexer.NewLexer(input)
 	parser := NewParse(l)
@@ -26,7 +26,7 @@ let foobar = 76983
 		expectedIdentifier string
 	}{
 		{"x"},
-		{"y"},
+		{"u"},
 		{"foobar"},
 	}
 
