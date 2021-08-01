@@ -7,35 +7,56 @@ import (
 )
 
 func TestLetStatement(t *testing.T) {
-	input := `
+
+	t.Run("valid let statement", func(t *testing.T) {
+		input := `
 let x = 5;
 let u = 10;
 let foobar = 76983;
 `
-	l := lexer.NewLexer(input)
-	parser := NewParse(l)
-	program := parser.parseProgram()
-	if program == nil {
-		t.Fatalf("Prarse program return nil")
-	}
-	if len(program.Statements) != 3 {
-		t.Fatalf("Program does not contians 3 statements, actully got %v", len(program.Statements))
-	}
-
-	tests := []struct {
-		expectedIdentifier string
-	}{
-		{"x"},
-		{"u"},
-		{"foobar"},
-	}
-
-	for i, tt := range tests {
-		stmt := program.Statements[i]
-		if !testLetStatement(t, stmt, tt.expectedIdentifier) {
-			return
+		l := lexer.NewLexer(input)
+		parser := NewParse(l)
+		program := parser.parseProgram()
+		checkErrors(t, parser)
+		if program == nil {
+			t.Fatalf("Prarse program return nil")
 		}
-	}
+		if len(program.Statements) != 3 {
+			t.Fatalf("Program does not contians 3 statements, actully got %v", len(program.Statements))
+		}
+
+		tests := []struct {
+			expectedIdentifier string
+		}{
+			{"x"},
+			{"u"},
+			{"foobar"},
+		}
+
+		for i, tt := range tests {
+			stmt := program.Statements[i]
+			if !testLetStatement(t, stmt, tt.expectedIdentifier) {
+				return
+			}
+		}
+	})
+
+	t.Run("invalid let statement", func(t *testing.T) {
+		input := `
+let x = 5;
+let u = 10;
+let 76983`
+		l := lexer.NewLexer(input)
+		parser := NewParse(l)
+		program := parser.parseProgram()
+		if len(parser.Errors()) == 0 {
+			t.FailNow()
+		}
+		if program == nil {
+			t.Fatalf("Prarse program return nil")
+		}
+
+	})
 
 }
 
@@ -62,4 +83,18 @@ func testLetStatement(t *testing.T, s ast.Statement, name string) bool {
 	}
 
 	return true
+}
+
+func checkErrors(t *testing.T, p *Parser) {
+	errors := p.Errors()
+	if len(errors) == 0 {
+		return
+	}
+
+	t.Errorf("parser has %d errors", len(errors))
+
+	for _, err := range errors {
+		t.Errorf("parse error : %q", err)
+	}
+	t.FailNow()
 }
