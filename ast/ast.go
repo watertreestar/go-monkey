@@ -94,12 +94,11 @@ func (ls *LetStatement) String() string {
 	return out.String()
 }
 
-// ReturnStatement
+// ReturnStatement represent the return expression like : return 5;
 type ReturnStatement struct {
-	Token      token.Token
-	ReturnExpr Expression
+	Token       token.Token
+	ReturnValue Expression
 }
-
 
 func (rs *ReturnStatement) statementNode() {
 
@@ -114,8 +113,8 @@ func (rs *ReturnStatement) String() string {
 
 	out.WriteString(rs.TokenLiteral() + " ")
 
-	if rs.ReturnExpr != nil {
-		out.WriteString(rs.ReturnExpr.String())
+	if rs.ReturnValue != nil {
+		out.WriteString(rs.ReturnValue.String())
 	}
 
 	out.WriteString(";")
